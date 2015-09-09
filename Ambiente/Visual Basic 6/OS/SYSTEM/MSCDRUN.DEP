@@ -1,0 +1,132 @@
+
+; Dependency file for setup wizards.
+
+[Version]
+Version=6.0.81.69
+
+; Run-time Dependencies for MSCDRun.dll (MSConDes.dll)
+
+; Default Dependencies ------------------------------------------------------
+
+[MSCDRun.dll]
+Dest=$(CommonFiles)\Designer
+Register=$(DLLSelfRegister)
+Version=6.0.81.69
+Uses1=MSRdo20.dll
+Uses2=ComCat.dll
+Uses3=
+CABFileName=MSCDRun.cab
+CABDefaultURL=http://activex.microsoft.com/controls/vb6
+CABINFFile=MSCDRun.inf
+
+[ComCat.dll]
+Dest=$(WinSysPathSysFile)
+Register=$(DLLSelfRegister)
+Uses1=
+
+; Localized Dependencies -------------------------------------------- 
+
+; ** German (DE) ***
+; (0007 = German)
+;
+[MSCDRun.dll <0007>]
+Uses1=ConnDDE.dll
+Uses2=
+
+[ConnDDE.dll <0007>]
+Uses1=
+CABFileName=ConnDDE.cab
+CABDefaultURL=http://activex.microsoft.com/controls/vb6
+CABINFFile=ConnDDE.inf
+
+; ** French (FR) ***
+; (000C = French)
+;
+[MSCDRun.dll <000C>]
+Uses1=ConnDFR.dll
+Uses2=
+
+[ConnDFR.dll <000C>]
+Uses1=
+CABFileName=ConnDFR.cab
+CABDefaultURL=http://activex.microsoft.com/controls/vb6
+CABINFFile=ConnDFR.inf
+
+; ** Italian (IT) ***
+; (0010 = Italian)
+;
+[MSCDRun.dll <0010>]
+Uses1=ConnDIT.dll
+Uses2=
+
+[ConnDIT.dll <0010>]
+Uses1=
+CABFileName=ConnDIT.cab
+CABDefaultURL=http://activex.microsoft.com/controls/vb6
+CABINFFile=ConnDIT.inf
+
+; ** Spanish (ES) ***
+; (000A = Spanish)
+;
+[MSCDRun.dll <000A>]
+Uses1=ConnDES.dll
+Uses2=
+
+[ConnDES.dll <000A>]
+Uses1=
+CABFileName=ConnDES.cab
+CABDefaultURL=http://activex.microsoft.com/controls/vb6
+CABINFFile=ConnDES.inf
+
+; ** Japanese (JP) ***
+; (0011 = Japanese)
+;
+[MSCDRun.dll <0011>]
+Uses1=ConnDJP.dll
+Uses2=
+
+[ConnDJP.dll <0011>]
+Uses1=
+CABFileName=ConnDJP.cab
+CABDefaultURL=http://activex.microsoft.com/controls/vb6
+CABINFFile=ConnDJP.inf
+
+; ** Korean (KO) ***
+; (0012 = Korean)
+;
+[MSCDRun.dll <0012>]
+Uses1=ConnDKO.dll
+Uses2=
+
+[ConnDKO.dll <0012>]
+Uses1=
+CABFileName=ConnDKO.cab
+CABDefaultURL=http://activex.microsoft.com/controls/vb6
+CABINFFile=ConnDKO.inf
+
+; ** Chinese Traditional (CHT) ***
+; (0404 = Chinese Traditional)
+;
+[MSCDRun.dll <0404>]
+Uses1=ConnDCHT.dll
+Uses2=
+
+[ConnDCHT.dll <0404>]
+Uses1=
+CABFileName=ConnDCHT.cab
+CABDefaultURL=http://activex.microsoft.com/controls/vb6
+CABINFFile=ConnDCHT.inf
+
+; ** Chinese Simplified (CHS) ***
+; (0804 = Chinese Simplified)
+;
+[MSCDRun.dll <0804>]
+Uses1=ConnDCHS.dll
+Uses2=
+
+[ConnDCHS.dll <0804>]
+Uses1=
+CABFileName=ConnDCHS.cab
+CABDefaultURL=http://activex.microsoft.com/controls/vb6
+CABINFFile=ConnDCHS.inf
+

@@ -1,0 +1,80 @@
+:Base MSQRY32.HLP>REF
+:Title Microsoft Query
+:Index Microsoft Query=msqry32.hlp
+:Link QY9701.HLP
+:Link QY9702.HLP
+:Link QY9703.HLP
+:Link QY9704.HLP
+:Link QY9705.HLP
+:Link OF9701.HLP
+:Link OF9702.HLP
+:Link OF9703.HLP
+:Link OF9704.HLP
+:Link OF9705.HLP
+0 Microsoft Query
+1 Troubleshoot Microsoft Query=qutbsTroubleshootUsingMicrosoftQuery
+1 Getting Help
+2 Get program information about Microsoft Query=ofhowGetInformationAboutMyComputer>HowTo
+2 Using the Office Assistant to Get Help
+3 Hide or show the Office Assistant=IDH_ofdefShowOfficeAssistant>HowTo
+3 Move the Office Assistant and its balloon=ofhowMoveOfficeAssistant>HowTo
+3 Choose a different Office Assistant=ofhowChangeOfficeAssistant>HowTo
+3 Change the size of the Office Assistant=ofdccChangeSizeOfOfficeAssistant>HowTo
+3 Turn the Office Assistant sound on or off=ofdccTurnOfficeAssistantSoundOnOrOff>HowTo
+3 Troubleshoot the Office Assistant=ofhowTroubleshootOfficeAssistant
+2 Using Other Ways to Get Help
+3 Get Help without using the Office Assistant=oftbcGetHelpWithoutShowingOfficeAssistant>HowTo
+3 Display messages without using the Office Assistant=rerefDisplayMessagesWithoutOfficeAssistant>HowTo
+1 Installing Components
+2 Install or remove individual components of Microsoft Office=wohowInstallorremoveindividualcomponentsofword
+1 Setting Up Data Sources
+2 Specify a source to retrieve data from=quhowSpecifySourceToRetrieveDataFrom>HowTo
+2 Install an ODBC driver for an external data source=quconInstallODBCDriverSoThatYouCanAccessExternalDataSource>HowTo
+2 I can't create a new data source.=qutbcICantSeemToCreateNewDataSource
+1 Creating, Opening, and Saving Queries
+2 Create a new query=qutbcCreateNewQuery
+2 Guidelines for constructing a query=quconGuidelinesForConstructingQuery
+2 Open a query=quhowOpenQuery>HowTo
+2 Save a query=quhowSaveQueryFileForReuse>HowTo
+2 Run, view, or edit an SQL command, procedure, or statement=quhowViewOrEditSQLSELECTStatementForQuery>HowTo
+1 Running Queries
+2 Run a query automatically, or wait to run the query at a later time=quhowRunQueryAutomaticallyOrWaitToRunAtLaterTime>HowTo
+2 Return a result set to Microsoft Excel=quhowReturnResultSetToMicrosoftExcel>HowTo
+2 Execute an SQL statement=quhowExecuteSQLStatement>HowTo
+1 Changing Queries
+2 Adding and Removing Tables and Fields
+3 Add a table to a query=quhowAddOrRemoveTablesInQuery>HowTo
+3 Delete a table from a query=quconDeleteTableFromQuery>HowTo
+3 Add or remove fields=quhowAddFieldToQuery>HowTo
+3 Run, view, or edit an SQL command, procedure, or statement=quhowViewOrEditSQLSELECTStatmentForQuery>HowTo
+2 Creating, Changing, and Removing Joins
+3 Join tables in a query=qudecJoinTablesInQuery
+3 How joins affect the result set in a query=quconWaysToJoinTablesInQuery
+3 How operators affect a join=qurefHowOperatorsAffectJoin
+3 Remove a join=quhowRemoveJoin>HowTo
+1 Limiting the Data You Retrieve
+2 About using criteria=qurefAboutUsingCriteria
+2 Limit the records you retrieve by using criteria=qudecUseCriteriaToRetrieveSpecificRecords
+2 Examples of expressions=qurefExpressionsYouCanUseToCreateCustomQueries
+2 Restore the full result set by removing criteria=quhowRestoreFullResultSetByRemovingCriteria>HowTo
+1 Creating Calculated Fields
+2 Create a calculated field=qudecCalculateFieldsUsingExpressionsOrFunctions
+2 Examples of expressions that use arithmetic operators=IDH_qudefExamplesOfExpressionsThatUseArithmeticOperators
+2 Functions you can use in a calculated field=qurefSummaryFunctionsForTotalsInQueries
+1 Changing the Result Set
+2 Change the layout of a result set=qudecFormatDataInQuery
+2 Format data in Microsoft Query=quhowChangeHowYouViewDataInMicrosoftQuery
+2 Restore the full result set by removing criteria=quhowRestoreFullResultSetByRemovingCriteria>HowTo
+1 Finding, Sorting, and Viewing Data
+2 Go to a specific record in the result set=quhowGoToSpecificRecordInResultSet>HowTo
+2 Sort records in a query=quhowSortRecordsInQuery>HowTo
+2 View different fields in a query=quhowViewDifferentRecordsInQuery>HowTo
+1 Changing Data in the Queried Database
+2 Make changes to data in a queried database=qudecMakeChangesToDataInQueriedDatabase
+1 Reference Information
+2 Use keyboard shortcut keys in Microsoft Query=qukbdUseKeyboardShortcutKeys
+2 Keys for using the Office Assistant=ofrefKeysForWorkingWithOfficeAssistant
+1 Using Dynamic Data Exchange (DDE)
+2 Use DDE with Microsoft Query=DDEUsingDynamicDataExchangewithMicrosoftQuery
+2 DDE Commands=qurefDDECommands
+:Include EULA8.CNT
