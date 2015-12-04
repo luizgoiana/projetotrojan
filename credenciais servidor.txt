@@ -1,0 +1,3 @@
+ftp.projetotrojan.esy.es    host
+u752146667.root   user
+qweasd3274   passwd
