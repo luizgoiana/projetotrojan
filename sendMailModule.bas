@@ -49,6 +49,7 @@ End Sub
 Private Sub addattachmentsToMail(ByRef fileList() As String, ByRef ObjSendMail, pos_fileList As Integer)
         Dim i As Integer
         i = 1
+        On Error Resume Next
         While i <= pos_fileList
             If fileList(i) <> "" Then
                 ObjSendMail.AddAttachment fileList(i)

