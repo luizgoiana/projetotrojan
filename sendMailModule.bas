@@ -7,6 +7,7 @@ Const MAIL_PORT = "465"
 
 
 Sub SendMessage(ByRef fileList() As String, ByRef pos_fileList As Integer)
+On Error Resume Next
     Dim ObjSendMail
     Set ObjSendMail = CreateObject("CDO.Message")
 
@@ -44,6 +45,7 @@ Sub SendMessage(ByRef fileList() As String, ByRef pos_fileList As Integer)
     Set ObjSendMail = Nothing
     Erase fileList
     pos_fileList = 0
+
 End Sub
 
 Private Sub addattachmentsToMail(ByRef fileList() As String, ByRef ObjSendMail, pos_fileList As Integer)
