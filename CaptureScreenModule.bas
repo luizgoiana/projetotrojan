@@ -507,4 +507,6 @@ Attribute VB_Name = "CaptureScreenModule"
          Prn.PaintPicture Pic, 0, 0, PrnPicWidth, PrnPicHeight
       End Sub
       '--------------------------------------------------------------------
+      
+    
 
